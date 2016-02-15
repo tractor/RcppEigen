@@ -137,6 +137,7 @@ namespace lmsol {
 	m_se              = Ch.solve(I_p()).diagonal().array().sqrt();
     }
     
+#ifndef NO_GESDD
     int gesdd(MatrixXd& A, ArrayXd& S, MatrixXd& Vt) {
 	int info, mone = -1, m = A.rows(), n = A.cols();
 	std::vector<int> iwork(8 * n);
@@ -161,6 +162,7 @@ namespace lmsol {
 	m_fitted    = X * m_coef;
 	m_se        = VDi.rowwise().norm();
     }
+#endif
 
     SVD::SVD(const Map<MatrixXd> &X, const Map<VectorXd> &y) : lm(X, y) {
 	JacobiSVD<MatrixXd>  UDV(X.jacobiSvd(ComputeThinU|ComputeThinV));
@@ -197,8 +199,10 @@ namespace lmsol {
 	    return SVD(X, y);
 	case SymmEigen_t:
 	    return SymmEigen(X, y);
+#ifndef NO_GESDD
 	case GESDD_t:
 	    return GESDD(X, y);
+#endif
 	}
 	throw invalid_argument("invalid type");
 	return ColPivQR(X, y);	// -Wall
